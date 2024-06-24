@@ -5,24 +5,22 @@ import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
 import {Install} from '@docker/actions-toolkit/lib/docker/install';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
-import axios, {isAxiosError} from 'axios'
+import axios, {isAxiosError} from 'axios';
 
 import * as context from './context';
 import * as stateHelper from './state-helper';
 
 async function validateSubscription(): Promise<void> {
-  const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`
+  const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
 
   try {
-    await axios.get(API_URL, {timeout: 3000})
+    await axios.get(API_URL, {timeout: 3000});
   } catch (error) {
     if (isAxiosError(error) && error.response) {
-      core.error(
-        'Subscription is not valid. Reach out to support@stepsecurity.io'
-      )
-      process.exit(1)
+      core.error('Subscription is not valid. Reach out to support@stepsecurity.io');
+      process.exit(1);
     } else {
-      core.info('Timeout or API not reachable. Continuing to next step.')
+      core.info('Timeout or API not reachable. Continuing to next step.');
     }
   }
 }
@@ -30,7 +28,7 @@ async function validateSubscription(): Promise<void> {
 actionsToolkit.run(
   // main
   async () => {
-    await validateSubscription()
+    await validateSubscription();
 
     const input: context.Inputs = context.getInputs();
     const runDir = path.join(os.homedir(), `setup-docker-action-${uuid.v4().slice(0, 8)}`);
