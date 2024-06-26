@@ -1,0 +1,291 @@
+name: ci
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'
+  push:
+    branches:
+      - 'main'
+      - 'releases/v*'
+    tags:
+      - 'v*'
+  pull_request:
+
+env:
+  DOCKER_VERSION: v24.0.9
+
+jobs:
+  main:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - windows-latest
+        version:
+          - pinned
+          - latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set version
+        shell: bash
+        run: |
+          if [ "${{ matrix.version }}" != "pinned" ]; then
+            echo "DOCKER_VERSION=${{ matrix.version }}" >> $GITHUB_ENV
+          fi
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  channel:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: v24.0.0-rc.4
+          channel: test
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  daemon-config:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  context:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+          context: foo
+      -
+        name: Check context
+        run: |
+          docker context inspect foo
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  lima-start-args:
+    #runs-on: macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+    runs-on: macos-13
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        env:
+          LIMA_START_ARGS: --cpus 4 --memory 8
+
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containerd:
+          - containerd-system
+          - containerd-tarball
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Uninstall containerd
+        if: matrix.containerd == 'containerd-tarball'
+        run: |
+          sudo apt-get remove -y containerd.io
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+      -
+        name: Start registry
+        run: |
+          docker run -d -p 5000:5000 --restart=always --name registry registry:2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
+          driver-opts: network=host
+      -
+        name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./test
+          push: true
+          tags: |
+            localhost:5000/name/app:latest
+      -
+        name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  build-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - macos-12
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+      -
+        name: Start registry
+        run: |
+          docker run -d -p 5000:5000 --restart=always --name registry registry:2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
+          driver-opts: network=host
+      -
+        name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./test
+          push: true
+          tags: |
+            localhost:5000/name/app:latest
+      -
+        name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+      -
+        name: Build
+        working-directory: ./test
+        run: |
+          docker build -f win.Dockerfile -t test .
+      -
+        name: Inspect
+        run: |
+          docker image inspect test
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
+
+  set-host:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          set-host: true
+      -
+        name: List contexts
+        run: |
+          docker context ls
+      -
+        name: Dump context
+        if: always()
+        uses: crazy-max/ghaction-dump-context@v2
