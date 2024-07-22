@@ -215,7 +215,7 @@ jobs:
           driver-opts: network=host
       -
         name: Build and push
-        uses: docker/build-push-action@31159d49c0d4756269a0940a750801a1ea5d7003 # v6.1.0
+        uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # v6.5.0
         with:
           context: ./test
           push: true
@@ -265,7 +265,7 @@ jobs:
           driver-opts: network=host
       -
         name: Build and push
-        uses: docker/build-push-action@31159d49c0d4756269a0940a750801a1ea5d7003 # v6.1.0
+        uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # v6.5.0
         with:
           context: ./test
           push: true
