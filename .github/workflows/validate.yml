@@ -50,6 +50,6 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
         name: Validate
-        uses: docker/bake-action@f6acc70fe0da9b200315017ca49a08c0de03aa0b # v5.1.0
+        uses: docker/bake-action@955c005d878f7d6d90b0e1030b35eff3da452304 # v5.6.0
         with:
           targets: ${{ matrix.target }}
