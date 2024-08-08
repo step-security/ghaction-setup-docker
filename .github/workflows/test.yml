@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
         name: Test
-        uses: docker/bake-action@f6acc70fe0da9b200315017ca49a08c0de03aa0b # v5.1.0
+        uses: docker/bake-action@8cea75c238fa977d2ac1fa69d09604b3b740f809 # v5.6.1
         with:
           targets: test
       -
