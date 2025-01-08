@@ -15,7 +15,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      targets: ${{ steps.targets.outputs.matrix }}
+      targets: ${{ steps.generate.outputs.targets }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -26,10 +26,11 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Targets matrix
-        id: targets
-        run: |
-          echo "matrix=$(docker buildx bake validate --print | jq -cr '.group.validate.targets')" >> $GITHUB_OUTPUT
+        name: List targets
+        id: generate
+        uses: docker/bake-action/subaction/list-targets@v6
+        with:
+          target: validate
 
   validate:
     runs-on: ubuntu-latest
@@ -46,10 +47,7 @@ jobs:
           egress-policy: audit
 
       -
-        name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      -
         name: Validate
-        uses: docker/bake-action@f6acc70fe0da9b200315017ca49a08c0de03aa0b # v5.1.0
+        uses: docker/bake-action@v6
         with:
           targets: ${{ matrix.target }}
