@@ -17,7 +17,8 @@ on:
   pull_request:
 
 env:
-  DOCKER_VERSION: v24.0.9
+  DOCKER_VERSION: v27.3.1
+  DOCKER_BUILD_SUMMARY: false
 
 jobs:
   main:
@@ -27,10 +28,12 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-24.04-arm
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
           - windows-latest
         version:
-          - pinned
-          - latest
+          - v27.3.1
+          - type=image,tag=27.3.1
         include:
           - os: macos-13
             version: pinned
@@ -44,21 +47,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set version
-        shell: bash
-        run: |
-          if [ "${{ matrix.version }}" != "pinned" ]; then
-            echo "DOCKER_VERSION=${{ matrix.version }}" >> $GITHUB_ENV
-          fi
-      -
         name: Set up Docker
         uses: ./
         with:
-          version: ${{ env.DOCKER_VERSION }}
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
+          version: ${{ matrix.version }}
 
   channel:
     runs-on: ${{ matrix.os }}
@@ -67,6 +59,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-24.04-arm
           #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
           - windows-latest
     steps:
@@ -82,7 +75,7 @@ jobs:
         name: Set up Docker
         uses: ./
         with:
-          version: v24.0.0-rc.4
+          version: ${{ env.DOCKER_VERSION }}
           channel: test
       -
         name: Dump context
@@ -96,6 +89,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-24.04-arm
           #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
           - windows-latest
     steps:
@@ -111,6 +105,7 @@ jobs:
         name: Set up Docker
         uses: ./
         with:
+          version: ${{ env.DOCKER_VERSION }}
           daemon-config: |
             {
               "debug": true,
@@ -130,6 +125,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - ubuntu-24.04-arm
           #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
           - macos-13
           - windows-latest
@@ -172,6 +168,8 @@ jobs:
       -
         name: Set up Docker
         uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
         env:
           LIMA_START_ARGS: --cpus 4 --memory 8
 
@@ -323,12 +321,55 @@ jobs:
         name: Set up Docker
         uses: ./
         with:
+          version: ${{ env.DOCKER_VERSION }}
           set-host: true
       -
         name: List contexts
         run: |
           docker context ls
+
+  rootless:
+    runs-on: ubuntu-latest
+    steps:
       -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+          rootless: true
+      -
+        name: List contexts
+        run: |
+          docker context ls
+
+  tcp:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
+          - macos-13
+          - windows-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        id: setup_docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+          tcp-port: 2378
+      -
+        name: Check docker info through TCP
+        run: |
+          docker info
+        env:
+          DOCKER_HOST: ${{ steps.setup_docker.outputs.tcp }}
