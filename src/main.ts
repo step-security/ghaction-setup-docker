@@ -1,6 +1,6 @@
+import * as crypto from 'crypto';
 import os from 'os';
 import path from 'path';
-import * as uuid from 'uuid';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
 import {Install} from '@docker/actions-toolkit/lib/docker/install';
@@ -31,21 +31,29 @@ actionsToolkit.run(
     await validateSubscription();
 
     const input: context.Inputs = context.getInputs();
-    const runDir = path.join(os.homedir(), `setup-docker-action-${uuid.v4().slice(0, 8)}`);
+    const runDir = path.join(os.homedir(), `setup-docker-action-${crypto.randomUUID().slice(0, 8)}`);
 
     if (input.context == 'default') {
       throw new Error(`'default' context cannot be used.`);
     }
 
+    let tcpPort: number | undefined;
+    let tcpAddress: string | undefined;
+    if (input.tcpPort) {
+      tcpPort = input.tcpPort;
+      tcpAddress = `tcp://127.0.0.1:${tcpPort}`;
+    }
+
     const install = new Install({
       runDir: runDir,
-      version: input.version,
-      channel: input.channel || 'stable',
+      source: input.source,
+      rootless: input.rootless,
       contextName: input.context || 'setup-docker-action',
-      daemonConfig: input.daemonConfig
+      daemonConfig: input.daemonConfig,
+      localTCPPort: tcpPort
     });
     let toolDir;
-    if (!(await Docker.isAvailable()) || input.version) {
+    if (!(await Docker.isAvailable()) || input.source) {
       await core.group(`Download docker`, async () => {
         toolDir = await install.download();
       });
@@ -56,6 +64,10 @@ actionsToolkit.run(
       await core.group(`Setting outputs`, async () => {
         core.info(`sock=${sockPath}`);
         core.setOutput('sock', sockPath);
+        if (tcpAddress) {
+          core.info(`tcp=${tcpAddress}`);
+          core.setOutput('tcp', tcpAddress);
+        }
       });
 
       if (input.setHost) {
