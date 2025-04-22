@@ -14,7 +14,7 @@ on:
       script:
         description: "Specify a script to run after audit fix"
         required: false
-        default: "yarn build"
+        default: "yarn run all"
 
 permissions:
   contents: write
@@ -24,10 +24,10 @@ permissions:
 
 jobs:
   audit-fix:
-    uses: step-security/reusable-workflows/.github/workflows/auto_cherry_pick.yaml@fix_UpStream-Changes-Cherry-Pick
+    uses: step-security/reusable-workflows/.github/workflows/auto_cherry_pick.yaml@upstream-Changes-CherryPick
     with:
       original-owner: "crazy-max"
       repo-name: "ghaction-setup-docker"
       base_branch: ${{ inputs.base_branch }}
       package_manager: "yarn"
-      script: ${{ inputs.script || 'yarn build' }}
+      script: ${{ inputs.script || 'yarn run all' }}
