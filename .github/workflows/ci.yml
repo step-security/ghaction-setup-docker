@@ -17,7 +17,7 @@ on:
   pull_request:
 
 env:
-  DOCKER_VERSION: v24.0.9
+  DOCKER_VERSION: v27.3.1
 
 jobs:
   main:
@@ -29,11 +29,11 @@ jobs:
           - ubuntu-latest
           - windows-latest
         version:
-          - pinned
-          - latest
+          - v27.3.1
+          - type=image,tag=27.3.1
         include:
           - os: macos-13
-            version: pinned
+            version: v27.3.1
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -44,25 +44,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set up QEMU
-        if: startsWith(matrix.os, 'macos')
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
-      -
-        name: Set version
-        shell: bash
-        run: |
-          if [ "${{ matrix.version }}" != "pinned" ]; then
-            echo "DOCKER_VERSION=${{ matrix.version }}" >> $GITHUB_ENV
-          fi
-      -
         name: Set up Docker
         uses: ./
         with:
-          version: ${{ env.DOCKER_VERSION }}
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
+          version: ${{ matrix.version }}
 
   channel:
     runs-on: ${{ matrix.os }}
@@ -83,19 +68,11 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set up QEMU
-        if: startsWith(matrix.os, 'macos')
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
-      -
         name: Set up Docker
         uses: ./
         with:
-          version: v24.0.0-rc.4
+          version: ${{ env.DOCKER_VERSION }}
           channel: test
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   daemon-config:
     runs-on: ${{ matrix.os }}
@@ -116,10 +93,6 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set up QEMU
-        if: startsWith(matrix.os, 'macos')
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
-      -
         name: Set up Docker
         uses: ./
         with:
@@ -130,10 +103,6 @@ jobs:
                 "containerd-snapshotter": true
               }
             }
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   context:
     runs-on: ${{ matrix.os }}
@@ -155,10 +124,6 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set up QEMU
-        if: startsWith(matrix.os, 'macos')
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
-      -
         name: Set up Docker
         uses: ./
         with:
@@ -168,10 +133,6 @@ jobs:
         name: Check context
         run: |
           docker context inspect foo
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   lima-start-args:
     #runs-on: macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
@@ -186,11 +147,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
-        name: Set up QEMU
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
-      -
         name: Set up Docker
         uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
         env:
           LIMA_START_ARGS: --cpus 4 --memory 8
 
@@ -243,10 +203,6 @@ jobs:
         name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   build-macos:
     runs-on: ${{ matrix.os }}
@@ -265,10 +221,6 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      -
-        name: Set up QEMU
-        if: startsWith(matrix.os, 'macos')
-        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
       -
         name: Set up Docker
         uses: ./
@@ -296,10 +248,6 @@ jobs:
         name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/name/app:latest --format '{{json .}}'
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   build-windows:
     runs-on: windows-latest
@@ -326,10 +274,6 @@ jobs:
         name: Inspect
         run: |
           docker image inspect test
-      -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
 
   set-host:
     runs-on: ubuntu-latest
@@ -346,12 +290,25 @@ jobs:
         name: Set up Docker
         uses: ./
         with:
+          version: ${{ env.DOCKER_VERSION }}
           set-host: true
       -
         name: List contexts
         run: |
           docker context ls
+  rootless:
+    runs-on: ubuntu-latest
+    steps:
       -
-        name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@5355a8e5e6ac5a302e746a1c4b7747a0393863c8 # v2.3.0
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker
+        uses: ./
+        with:
+          version: ${{ env.DOCKER_VERSION }}
+          rootless: true
+      -
+        name: List contexts
+        run: |
+          docker context ls
