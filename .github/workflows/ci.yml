@@ -44,6 +44,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
+        name: Set up QEMU
+        if: startsWith(matrix.os, 'macos')
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
+      -
         name: Set version
         shell: bash
         run: |
@@ -79,6 +83,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
+        name: Set up QEMU
+        if: startsWith(matrix.os, 'macos')
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
+      -
         name: Set up Docker
         uses: ./
         with:
@@ -107,6 +115,10 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      -
+        name: Set up QEMU
+        if: startsWith(matrix.os, 'macos')
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
       -
         name: Set up Docker
         uses: ./
@@ -143,6 +155,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       -
+        name: Set up QEMU
+        if: startsWith(matrix.os, 'macos')
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
+      -
         name: Set up Docker
         uses: ./
         with:
@@ -159,7 +175,7 @@ jobs:
 
   lima-start-args:
     #runs-on: macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -169,6 +185,9 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      -
+        name: Set up QEMU
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
       -
         name: Set up Docker
         uses: ./
@@ -236,7 +255,7 @@ jobs:
       matrix:
         os:
           #- macos-14  # no virt: https://github.com/docker/actions-toolkit/issues/317
-          - macos-12
+          - macos-13
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6 # v2.8.1
@@ -246,6 +265,10 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      -
+        name: Set up QEMU
+        if: startsWith(matrix.os, 'macos')
+        uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
       -
         name: Set up Docker
         uses: ./
