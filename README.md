@@ -46,27 +46,6 @@ jobs:
         uses: step-security/ghaction-setup-docker@v3
 ```
 
-> [!IMPORTANT]
-> macOS runners hang with latest QEMU 9.1.0. You need to install QEMU 9.0.2 as
-> a workaround:
-> ```yaml
-> name: ci
-> 
-> on:
->   push:
-> 
-> jobs:
->   docker:
->     runs-on: macos-13
->     steps:
->       -
->         name: Install QEMU 9.0.2
->         uses: docker/actions-toolkit/.github/actions/macos-setup-qemu@19ca9ade20f5da695f76a10988d6532058575f82
->       -
->         name: Set up Docker
->         uses: step-security/ghaction-setup-docker@v3
-> ```
-
 ### Daemon configuration
 
 You can [configure the Docker daemon](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file)
@@ -132,6 +111,7 @@ The following inputs can be used as `step.with` keys
 | `daemon-config` | String |                       | [Docker daemon JSON configuration](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file) |
 | `context`       | String | `setup-docker-action` | Docker context name.                                                                                                        |
 | `set-host`      | Bool   | `false`               | Set `DOCKER_HOST` environment variable to docker socket path.                                                               |
+| `rootless`      | Bool   | `false`               | Start daemon in rootless mode                                                                                               |
 
 ### outputs
 
