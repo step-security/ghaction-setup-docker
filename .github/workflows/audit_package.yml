@@ -14,7 +14,7 @@ on:
       script:
         description: "Specify a script to run after audit fix"
         required: false
-        default: "yarn build"
+        default: "yarn run all"
   
   schedule:
     - cron: "0 0 * * 1"
@@ -25,7 +25,7 @@ jobs:
     with:
       base_branch: ${{ inputs.base_branch || 'main' }}
       package_manager: "yarn"
-      script: ${{ inputs.script || 'yarn build' }}
+      script: ${{ inputs.script || 'yarn run all' }}
 
 permissions:
   contents: write
