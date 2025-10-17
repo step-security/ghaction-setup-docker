@@ -15,6 +15,8 @@ on:
         description: "Specify a script to run after audit fix"
         required: false
         default: "yarn run all"
+  pull_request:
+    types: [opened, synchronize, labeled]
 
 permissions:
   contents: write
@@ -24,6 +26,7 @@ permissions:
 
 jobs:
   cherry-pick:
+    if: github.event_name == 'workflow_dispatch' || contains(fromJson(toJson(github.event.pull_request.labels)).*.name, 'review-required')
     uses: step-security/reusable-workflows/.github/workflows/auto_cherry_pick.yaml@v1
     with:
       original-owner: "crazy-max"
@@ -31,3 +34,4 @@ jobs:
       base_branch: ${{ inputs.base_branch }}
       package_manager: "yarn"
       script: ${{ inputs.script || 'yarn run all' }}
+      mode: ${{ github.event_name == 'pull_request' && 'verify' || inputs.mode }}
