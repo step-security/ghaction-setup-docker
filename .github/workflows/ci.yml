@@ -6,14 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 10 * * *'
   push:
     branches:
       - 'main'
-      - 'releases/v*'
-    tags:
-      - 'v*'
   pull_request:
 
 env:
