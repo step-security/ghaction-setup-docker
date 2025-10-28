@@ -1,11 +1,12 @@
 import * as crypto from 'crypto';
-import os from 'os';
 import path from 'path';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
 import {Install} from '@docker/actions-toolkit/lib/docker/install';
 import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
 import axios, {isAxiosError} from 'axios';
+import {Install as RegclientInstall} from '@docker/actions-toolkit/lib/regclient/install';
+import {Install as UndockInstall} from '@docker/actions-toolkit/lib/undock/install';
 
 import * as context from './context';
 import * as stateHelper from './state-helper';
@@ -25,16 +26,42 @@ async function validateSubscription(): Promise<void> {
   }
 }
 
+const regctlDefaultVersion = 'v0.8.3';
+const undockDefaultVersion = 'v0.10.0';
+
 actionsToolkit.run(
   // main
   async () => {
     await validateSubscription();
 
     const input: context.Inputs = context.getInputs();
-    const runDir = path.join(os.homedir(), `setup-docker-action-${crypto.randomUUID().slice(0, 8)}`);
+    const runDir = path.join(input.runtimeBasedir, `run-${crypto.randomUUID().slice(0, 8)}`);
 
     if (input.context == 'default') {
       throw new Error(`'default' context cannot be used.`);
+    }
+
+    if (input.source.type === 'image') {
+      await core.group(`Download and install regctl`, async () => {
+        const regclientInstall = new RegclientInstall();
+        const regclientBinPath = await regclientInstall.download(
+          process.env.REGCTL_VERSION && process.env.REGCTL_VERSION.trim()
+            ? process.env.REGCTL_VERSION
+            : regctlDefaultVersion,
+          true
+        );
+        await regclientInstall.install(regclientBinPath);
+      });
+      await core.group(`Download and install undock`, async () => {
+        const undockInstall = new UndockInstall();
+        const undockBinPath = await undockInstall.download(
+          process.env.UNDOCK_VERSION && process.env.UNDOCK_VERSION.trim()
+            ? process.env.UNDOCK_VERSION
+            : undockDefaultVersion,
+          true
+        );
+        await undockInstall.install(undockBinPath);
+      });
     }
 
     let tcpPort: number | undefined;
