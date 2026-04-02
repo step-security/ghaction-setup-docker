@@ -2,14 +2,14 @@ import * as crypto from 'crypto';
 import path from 'path';
 import * as core from '@actions/core';
 import * as actionsToolkit from '@docker/actions-toolkit';
-import {Install} from '@docker/actions-toolkit/lib/docker/install';
-import {Docker} from '@docker/actions-toolkit/lib/docker/docker';
+import {Install} from '@docker/actions-toolkit/lib/docker/install.js';
+import {Docker} from '@docker/actions-toolkit/lib/docker/docker.js';
 import axios, {isAxiosError} from 'axios';
-import {Install as RegclientInstall} from '@docker/actions-toolkit/lib/regclient/install';
-import {Install as UndockInstall} from '@docker/actions-toolkit/lib/undock/install';
+import {Install as RegclientInstall} from '@docker/actions-toolkit/lib/regclient/install.js';
+import {Install as UndockInstall} from '@docker/actions-toolkit/lib/undock/install.js';
 
-import * as context from './context';
-import * as stateHelper from './state-helper';
+import * as context from './context.js';
+import * as stateHelper from './state-helper.js';
 
 async function validateSubscription(): Promise<void> {
   const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
