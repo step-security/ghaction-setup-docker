@@ -19,6 +19,11 @@ on:
         description: "Node.js version to use"
         required: false
         default: "24"
+      yarn_version:
+        description: "Specify a yarn version"
+        required: false
+        type: string  
+        default: "4.9.2"
 
   pull_request:
     types: [opened, synchronize, labeled]
@@ -41,4 +46,6 @@ jobs:
       script: ${{ inputs.script || 'yarn run all' }}
       mode: ${{ github.event_name == 'pull_request' && 'verify' || inputs.mode }}
       node_version: ${{ inputs.node_version || '24' }}
+      yarn_version: ${{ github.event.inputs.yarn_version || '4.9.2' }}
+
 
