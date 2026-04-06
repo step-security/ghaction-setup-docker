@@ -1,3 +1,5 @@
+[![StepSecurity Maintained Action](https://raw.githubusercontent.com/step-security/maintained-actions-assets/main/assets/maintained-action-banner.png)](https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions)
+
 [![GitHub release](https://img.shields.io/github/release/step-security/ghaction-setup-docker.svg?style=flat-square)](https://github.com/step-security/ghaction-setup-docker/releases/latest)
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-docker--setup--docker-blue?logo=github&style=flat-square)](https://github.com/marketplace/actions/docker-setup-docker)
 [![CI workflow](https://img.shields.io/github/actions/workflow/status/step-security/ghaction-setup-docker/ci.yml?branch=main&label=ci&logo=github&style=flat-square)](https://github.com/step-security/ghaction-setup-docker/actions?workflow=ci)
