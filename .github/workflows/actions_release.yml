@@ -9,7 +9,11 @@ on:
       script:
         description: "Specify a script to run after audit fix"
         required: false
-        default: "yarn run all"
+        default: "yarn all"
+      node_version:
+        description: "Node.js version to use"
+        required: false
+        default: "24"
 
 permissions:
   contents: read
@@ -24,3 +28,4 @@ jobs:
     with:
       tag: "${{ github.event.inputs.tag }}"
       script: "${{ github.event.inputs.script }}"
+      node_version: ${{ github.event.inputs.node_version || '24' }}

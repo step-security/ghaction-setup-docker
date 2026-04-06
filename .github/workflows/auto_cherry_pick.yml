@@ -15,6 +15,11 @@ on:
         description: "Specify a script to run after audit fix"
         required: false
         default: "yarn run all"
+      node_version:
+        description: "Node.js version to use"
+        required: false
+        default: "24"
+
   pull_request:
     types: [opened, synchronize, labeled]
 
@@ -35,3 +40,5 @@ jobs:
       package_manager: "yarn"
       script: ${{ inputs.script || 'yarn run all' }}
       mode: ${{ github.event_name == 'pull_request' && 'verify' || inputs.mode }}
+      node_version: ${{ inputs.node_version || '24' }}
+
