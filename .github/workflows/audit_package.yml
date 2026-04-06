@@ -19,6 +19,11 @@ on:
         description: "Node.js version to use"
         required: false
         default: "24"
+      yarn_version:
+        description: "Specify a yarn version"
+        required: false
+        type: string  
+        default: "4.9.2"
 
   schedule:
     - cron: "0 0 * * 1"
@@ -31,6 +36,7 @@ jobs:
       package_manager: "yarn"
       script: ${{ inputs.script || 'yarn run all' }}
       node_version: ${{ inputs.node_version || '24' }}
+      yarn_version: ${{ github.event.inputs.yarn_version || '4.9.2' }}
 
 permissions:
   contents: write
