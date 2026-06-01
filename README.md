@@ -53,7 +53,7 @@ jobs:
     steps:
       -
         name: Set up Docker
-        uses: step-security/ghaction-setup-docker@v4
+        uses: step-security/ghaction-setup-docker@v5
 ```
 
 ### Daemon configuration
@@ -75,7 +75,7 @@ jobs:
     steps:
       -
         name: Set up Docker
-        uses: step-security/ghaction-setup-docker@v4
+        uses: step-security/ghaction-setup-docker@v5
         with:
           daemon-config: |
             {
@@ -103,7 +103,7 @@ jobs:
     steps:
       -
         name: Set up Docker
-        uses: step-security/ghaction-setup-docker@v4
+        uses: step-security/ghaction-setup-docker@v5
         env:
           LIMA_START_ARGS: --cpus 4 --memory 8
 ```
