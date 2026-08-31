@@ -54,7 +54,7 @@ async function validateSubscription(): Promise<void> {
 }
 
 const regctlDefaultVersion = 'v0.11.5';
-const undockDefaultVersion = 'v0.10.0';
+const undockDefaultVersion = 'v0.14.0';
 
 actionsToolkit.run(
   // main
