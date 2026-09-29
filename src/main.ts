@@ -53,7 +53,7 @@ async function validateSubscription(): Promise<void> {
   }
 }
 
-const regctlDefaultVersion = 'v0.11.5';
+const regctlDefaultVersion = 'v0.11.6';
 const undockDefaultVersion = 'v0.14.0';
 
 actionsToolkit.run(
@@ -144,7 +144,8 @@ actionsToolkit.run(
       return;
     }
     const install = new Install({
-      runDir: stateHelper.runDir
+      runDir: stateHelper.runDir,
+      rootless: core.getBooleanInput('rootless')
     });
     await install.tearDown();
   }
