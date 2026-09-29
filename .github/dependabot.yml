@@ -26,3 +26,8 @@ updates:
     directory: /test
     schedule:
       interval: daily
+
+  - package-ecosystem: npm
+    directory: /dist
+    schedule:
+      interval: daily
