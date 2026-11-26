@@ -1,0 +1,9 @@
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+ignoreUntil = 2027-02-26
+reason = "Unexercised transitive dependency (build tooling / unused toolkit artifact code); no upstream release supports glob >=14.0.2"
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-02-26
+reason = "Unexercised transitive dependency (build tooling / unused toolkit cache and artifact code); no upstream release supports minimatch >=11.0.1"
