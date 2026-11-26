@@ -15,7 +15,7 @@ on:
   pull_request:
 
 env:
-  DOCKER_VERSION: v27.3.1
+  DOCKER_VERSION: v29.9.3
   DOCKER_BUILD_SUMMARY: false
 
 jobs:
@@ -27,8 +27,8 @@ jobs:
         os: ${{ github.actor == 'dependabot[bot]' && fromJson('["ubuntu-latest"]') || fromJson('["ubuntu-latest", "windows-latest"]') }}
         version:
           - ""
-          - v27.3.1
-          - type=image,tag=27.3.1
+          - v29.9.3
+          - type=image,tag=29.9.3
         include: ${{ github.actor == 'dependabot[bot]' && fromJson('[]') || fromJson('[{"os":"macos-26-large","version":"v27.3.1"}]') }}
     steps:
       - name: Harden Runner
@@ -90,7 +90,8 @@ jobs:
             {
               "debug": true,
               "features": {
-                "containerd-snapshotter": true
+                "containerd-snapshotter": true,
+                "embedded-containerd": ${{ runner.os == 'Windows' }}
               }
             }
 
