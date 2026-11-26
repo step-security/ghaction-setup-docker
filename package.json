@@ -1,5 +1,6 @@
 {
-  "name": "docker-setup-docker",
+  "name": "@step-security/docker-setup-docker",
+  "private": true,
   "description": "Set up Docker for use in GitHub Actions by downloading and installing a version of Docker CE",
   "type": "module",
   "main": "src/main.ts",
@@ -20,12 +21,13 @@
     "engine"
   ],
   "author": "step-security",
+  "publisher": "step-security",
   "license": "Apache-2.0",
   "packageManager": "yarn@4.15.0",
   "dependencies": {
     "@actions/core": "^3.0.1",
-    "@docker/actions-toolkit": "^0.100.0",
-    "axios": "^1.20.0"
+    "@docker/actions-toolkit": "^0.109.0",
+    "axios": "^1.21.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",
@@ -43,5 +45,13 @@
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
+  },
+  "homepage": "https://github.com/step-security/ghaction-setup-docker#readme",
+  "bugs": {
+    "url": "https://github.com/step-security/ghaction-setup-docker/issues"
+  },
+  "engines": {
+    "node": ">=24",
+    "yarn": ">=4"
   }
 }
